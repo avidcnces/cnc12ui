@@ -2,6 +2,12 @@
 
 :root {
     --jog-btn-size: 60px;
+    /* Panel background color - change this value to update both left panel and G-code preview backgrounds */
+    --panel-bg-color: #3d8fe0;
+}
+
+[data-bs-theme="dark"] {
+    --panel-bg-color: var(--bs-dark);
 }
 
 body {
@@ -14,26 +20,18 @@ body {
 }
 
 .left-panel {
-    background-color: var(--bs-light);
-    border-right: 1px solid var(--bs-border-color);
+    background-color: var(--panel-bg-color); /* Uses shared panel background color */
     overflow-y: auto;
     max-height: calc(100vh - 56px);
 }
 
 .right-panel {
+    background-color: var(--panel-bg-color); /* Uses shared panel background color */
     overflow: hidden;
     max-height: calc(100vh - 56px);
 }
 
 /* Dark mode adjustments */
-[data-bs-theme="dark"] .left-panel {
-    background-color: var(--bs-dark);
-}
-
-[data-bs-theme="dark"] .preview-container-2d,
-[data-bs-theme="dark"] .preview-container-3d {
-    background-color: var(--bs-dark) !important;
-}
 
 /* DRO Styling */
 .dro-container {
@@ -206,6 +204,7 @@ body {
     border: 2px dashed var(--bs-border-color);
     border-radius: 0.5rem;
     position: relative;
+    background-color: var(--panel-bg-color); /* Uses shared panel background color */
 }
 
 /* Dark Mode Toggle */
@@ -288,20 +287,12 @@ body {
     background-color: #ffc107;
 }
 
-/* Custom scrollbar for left panel */
+/* Hide scrollbar for left panel while keeping scroll functionality */
+.left-panel {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* Internet Explorer 10+ */
+}
+
 .left-panel::-webkit-scrollbar {
-    width: 8px;
-}
-
-.left-panel::-webkit-scrollbar-track {
-    background: var(--bs-light);
-}
-
-.left-panel::-webkit-scrollbar-thumb {
-    background: var(--bs-secondary);
-    border-radius: 4px;
-}
-
-.left-panel::-webkit-scrollbar-thumb:hover {
-    background: var(--bs-primary);
+    display: none; /* WebKit browsers (Chrome, Safari, Edge) */
 }
