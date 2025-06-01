@@ -84,6 +84,104 @@
                     </div>
                 </div>
 
+                <!-- Jog Controls Card -->
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-arrows-move me-2"></i>Jog Controls
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-4">
+                                <select class="form-select form-select-sm" id="jogMode">
+                                    <option value="continuous">Continuous</option>
+                                    <option value="incremental">Incremental</option>
+                                </select>
+                            </div>
+                            <div class="col-4">
+                                <select class="form-select form-select-sm" id="jogSpeed">
+                                    <option value="slow">Slow</option>
+                                    <option value="fast">Fast</option>
+                                </select>
+                            </div>
+                            <div class="col-4">
+                                <select class="form-select form-select-sm" id="jogIncrement">
+                                    <option value="0.01">0.01</option>
+                                    <option value="0.1">0.1</option>
+                                    <option value="1">1.0</option>
+                                    <option value="10">10.0</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Jog Controls Layout: Z | XY | A -->
+                        <div class="row mb-3">
+                            <!-- Z Axis Controls -->
+                            <div class="col-3">
+                                <label class="form-label small text-center d-block">Z Axis</label>
+                                <div class="d-grid gap-1">
+                                    <button class="btn btn-outline-primary jog-btn" data-axis="z" data-direction="z+">
+                                        <i class="bi bi-arrow-up"></i>
+                                    </button>
+                                    <button class="btn btn-outline-primary jog-btn" data-axis="z" data-direction="z-">
+                                        <i class="bi bi-arrow-down"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- XY Jog Controls -->
+                            <div class="col-6">
+                                <label class="form-label small text-center d-block">XY Plane</label>
+                                <div class="jog-xy-container">
+                                    <div class="jog-grid">
+                                        <button class="btn btn-outline-primary jog-btn" data-axis="xy" data-direction="x-y+">
+                                            <i class="bi bi-arrow-up-left"></i>
+                                        </button>
+                                        <button class="btn btn-outline-primary jog-btn" data-axis="xy" data-direction="y+">
+                                            <i class="bi bi-arrow-up"></i>
+                                        </button>
+                                        <button class="btn btn-outline-primary jog-btn" data-axis="xy" data-direction="x+y+">
+                                            <i class="bi bi-arrow-up-right"></i>
+                                        </button>
+                                        <button class="btn btn-outline-primary jog-btn" data-axis="xy" data-direction="x-">
+                                            <i class="bi bi-arrow-left"></i>
+                                        </button>
+                                        <button class="btn btn-outline-secondary jog-home" id="homeXY">
+                                            <i class="bi bi-house"></i>
+                                        </button>
+                                        <button class="btn btn-outline-primary jog-btn" data-axis="xy" data-direction="x+">
+                                            <i class="bi bi-arrow-right"></i>
+                                        </button>
+                                        <button class="btn btn-outline-primary jog-btn" data-axis="xy" data-direction="x-y-">
+                                            <i class="bi bi-arrow-down-left"></i>
+                                        </button>
+                                        <button class="btn btn-outline-primary jog-btn" data-axis="xy" data-direction="y-">
+                                            <i class="bi bi-arrow-down"></i>
+                                        </button>
+                                        <button class="btn btn-outline-primary jog-btn" data-axis="xy" data-direction="x+y-">
+                                            <i class="bi bi-arrow-down-right"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- A Axis Controls -->
+                            <div class="col-3">
+                                <label class="form-label small text-center d-block">A Axis</label>
+                                <div class="d-grid gap-1">
+                                    <button class="btn btn-outline-primary jog-btn" data-axis="a" data-direction="a+">
+                                        <i class="bi bi-arrow-clockwise"></i>
+                                    </button>
+                                    <button class="btn btn-outline-primary jog-btn" data-axis="a" data-direction="a-">
+                                        <i class="bi bi-arrow-counterclockwise"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Machine Control Card -->
                 <div class="card mb-3">
                     <div class="card-header">
@@ -141,98 +239,6 @@
                             <div class="col-6">
                                 <small class="text-muted">Machine Speed</small>
                                 <div class="h5" id="machineSpeed">0 mm/min</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Jog Controls Card -->
-                <div class="card mb-3">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">
-                            <i class="bi bi-arrows-move me-2"></i>Jog Controls
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row mb-3">
-                            <div class="col-4">
-                                <select class="form-select form-select-sm" id="jogMode">
-                                    <option value="continuous">Continuous</option>
-                                    <option value="incremental">Incremental</option>
-                                </select>
-                            </div>
-                            <div class="col-4">
-                                <select class="form-select form-select-sm" id="jogSpeed">
-                                    <option value="slow">Slow</option>
-                                    <option value="fast">Fast</option>
-                                </select>
-                            </div>
-                            <div class="col-4">
-                                <select class="form-select form-select-sm" id="jogIncrement">
-                                    <option value="0.01">0.01</option>
-                                    <option value="0.1">0.1</option>
-                                    <option value="1">1.0</option>
-                                    <option value="10">10.0</option>
-                                </select>
-                            </div>
-                        </div>
-                        
-                        <!-- XY Jog Controls -->
-                        <div class="jog-xy-container mb-3">
-                            <div class="jog-grid">
-                                <button class="btn btn-outline-primary jog-btn" data-axis="xy" data-direction="y+">
-                                    <i class="bi bi-arrow-up"></i>
-                                </button>
-                                <button class="btn btn-outline-primary jog-btn" data-axis="xy" data-direction="x-y+">
-                                    <i class="bi bi-arrow-up-left"></i>
-                                </button>
-                                <button class="btn btn-outline-primary jog-btn" data-axis="xy" data-direction="x+y+">
-                                    <i class="bi bi-arrow-up-right"></i>
-                                </button>
-                                <button class="btn btn-outline-primary jog-btn" data-axis="xy" data-direction="x-">
-                                    <i class="bi bi-arrow-left"></i>
-                                </button>
-                                <button class="btn btn-outline-secondary jog-home" id="homeXY">
-                                    <i class="bi bi-house"></i>
-                                </button>
-                                <button class="btn btn-outline-primary jog-btn" data-axis="xy" data-direction="x+">
-                                    <i class="bi bi-arrow-right"></i>
-                                </button>
-                                <button class="btn btn-outline-primary jog-btn" data-axis="xy" data-direction="x-y-">
-                                    <i class="bi bi-arrow-down-left"></i>
-                                </button>
-                                <button class="btn btn-outline-primary jog-btn" data-axis="xy" data-direction="y-">
-                                    <i class="bi bi-arrow-down"></i>
-                                </button>
-                                <button class="btn btn-outline-primary jog-btn" data-axis="xy" data-direction="x+y-">
-                                    <i class="bi bi-arrow-down-right"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Z and A Jog Controls -->
-                        <div class="row">
-                            <div class="col-6">
-                                <label class="form-label small">Z Axis</label>
-                                <div class="d-grid gap-1">
-                                    <button class="btn btn-outline-primary jog-btn" data-axis="z" data-direction="z+">
-                                        <i class="bi bi-arrow-up"></i> Z+
-                                    </button>
-                                    <button class="btn btn-outline-primary jog-btn" data-axis="z" data-direction="z-">
-                                        <i class="bi bi-arrow-down"></i> Z-
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <label class="form-label small">A Axis</label>
-                                <div class="d-grid gap-1">
-                                    <button class="btn btn-outline-primary jog-btn" data-axis="a" data-direction="a+">
-                                        <i class="bi bi-arrow-clockwise"></i> A+
-                                    </button>
-                                    <button class="btn btn-outline-primary jog-btn" data-axis="a" data-direction="a-">
-                                        <i class="bi bi-arrow-counterclockwise"></i> A-
-                                    </button>
-                                </div>
                             </div>
                         </div>
                     </div>
