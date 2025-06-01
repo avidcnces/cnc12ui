@@ -47,6 +47,7 @@ body {
     display: flex;
     align-items: center;
     margin-bottom: 0.5rem;
+    justify-content: space-between;
 }
 
 .dro-row:last-child {
@@ -63,15 +64,24 @@ body {
 .dro-input {
     font-family: 'Courier New', monospace;
     font-weight: bold;
-    text-align: right;
+    text-align: left;
     background-color: var(--bs-dark);
     color: var(--bs-light);
     border: 1px solid var(--bs-primary);
+    flex: 1;
+    margin: 0 0.5rem;
 }
 
 [data-bs-theme="dark"] .dro-input {
     background-color: var(--bs-light);
     color: var(--bs-dark);
+}
+
+.dro-homed-badge {
+    font-size: 0.7rem;
+    width: 75px;
+    text-align: center;
+    flex-shrink: 0;
 }
 
 /* Jog Controls Styling */

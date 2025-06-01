@@ -3,6 +3,7 @@
 class CNCController {
     constructor() {
         this.position = { x: 0, y: 0, z: 0, a: 0 };
+        this.homed = { x: true, y: true, z: 'fault', a: false }; // Default: XYZ homed, A not homed, Z has fault
         this.units = 'mm';
         this.wcs = 'G54';
         this.isRunning = false;
@@ -232,6 +233,8 @@ class CNCController {
     homeXY() {
         this.position.x = 0;
         this.position.y = 0;
+        this.homed.x = true;
+        this.homed.y = true;
         this.animateButton(document.getElementById('homeXY'));
         this.updateDRODisplay();
         console.log('XY homed');
@@ -293,6 +296,25 @@ class CNCController {
         document.getElementById('droY').value = this.position.y.toFixed(precision);
         document.getElementById('droZ').value = this.position.z.toFixed(precision);
         document.getElementById('droA').value = this.position.a.toFixed(precision);
+        
+        this.updateHomedBadges();
+    }
+
+    updateHomedBadges() {
+        const axes = ['x', 'y', 'z', 'a'];
+        axes.forEach(axis => {
+            const badge = document.getElementById(`homed${axis.toUpperCase()}`);
+            if (this.homed[axis] === true) {
+                badge.textContent = 'Homed';
+                badge.className = 'badge bg-success ms-2 dro-homed-badge';
+            } else if (this.homed[axis] === 'fault') {
+                badge.textContent = 'Drive Fault';
+                badge.className = 'badge bg-danger ms-2 dro-homed-badge';
+            } else {
+                badge.textContent = 'Not Homed';
+                badge.className = 'badge bg-warning ms-2 dro-homed-badge';
+            }
+        });
     }
 
     updateSpeedDisplays() {
