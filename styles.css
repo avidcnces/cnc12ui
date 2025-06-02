@@ -277,6 +277,26 @@ body {
     background-color: var(--bs-dark);
 }
 
+/* Tool Changes List Styling */
+.tool-changes-list {
+    max-height: 120px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+}
+
+.tool-changes-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+.tool-changes-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.tool-changes-list::-webkit-scrollbar-thumb {
+    background: var(--bs-secondary);
+    border-radius: 2px;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .left-panel {

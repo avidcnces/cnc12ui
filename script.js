@@ -21,6 +21,10 @@ class CNCController {
             estimatedRuntime: 0, // in seconds
             toolChanges: 0,
             toolChangeDetails: [], // Added for list of tool changes
+            fileSize: {
+                bytes: 0,
+                lines: 0
+            },
             jobSize: {
                 minX: null,
                 maxX: null,
@@ -275,72 +279,96 @@ class CNCController {
     simulateGcodeStats() {
         // Simulate G-code statistics with realistic values
         this.gcodeStats = {
-            estimatedRuntime: 3720, // 1 hour 2 minutes in seconds
-            toolChanges: 3,
-            toolChangeDetails: [ // Added example tool change details
-                { toolNumber: 1, line: 150, description: "Roughing Endmill 6mm" },
-                { toolNumber: 2, line: 450, description: "Finishing Ballnose 3mm" },
-                { toolNumber: 3, line: 780, description: "Drill 2mm" }
+            estimatedRuntime: 4560, // 1 hour 16 minutes in seconds
+            toolChanges: 5,
+            toolChangeDetails: [ // Added more tool change details for testing scroll
+                { toolNumber: 1, line: 89, description: "Face Mill 25mm" },
+                { toolNumber: 2, line: 245, description: "Roughing Endmill 8mm" },
+                { toolNumber: 3, line: 567, description: "Finishing Endmill 6mm" },
+                { toolNumber: 4, line: 834, description: "Ballnose 4mm R2" },
+                { toolNumber: 5, line: 1156, description: "Drill 3.2mm" }
             ],
+            fileSize: {
+                bytes: 67840, // ~66.2 KB
+                lines: 1789
+            },
             jobSize: {
-                minX: -25.4,
-                maxX: 76.2,
-                minY: -12.7,
-                maxY: 50.8,
-                minZ: -6.35,
-                maxZ: 0
+                minX: -42.5,
+                maxX: 87.3,
+                minY: -28.9,
+                maxY: 45.6,
+                minZ: -12.7,
+                maxZ: 2.0
             }
         };
         this.updateStatisticsDisplay();
     }
 
-    updateStatisticsDisplay() {
-        // Update basic statistics
-        const hours = Math.floor(this.gcodeStats.estimatedRuntime / 3600);
-        const minutes = Math.floor((this.gcodeStats.estimatedRuntime % 3600) / 60);
-        const seconds = this.gcodeStats.estimatedRuntime % 60;
-        const runtimeText = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        
-        document.getElementById('estimatedRuntime').textContent = runtimeText;
+    updateDisplay() {
+        this.updateDRODisplay();
+        this.updateSpeedDisplays();
+    }
 
-        // Update job size and tool changes
-        if (this.gcodeStats.jobSize.minX !== null) {
-            const unit = this.units;
-            
-            // Calculate sizes
-            const xSizeVal = this.gcodeStats.jobSize.maxX - this.gcodeStats.jobSize.minX;
-            const ySizeVal = this.gcodeStats.jobSize.maxY - this.gcodeStats.jobSize.minY;
-            const zDepthVal = Math.abs(this.gcodeStats.jobSize.maxZ - this.gcodeStats.jobSize.minZ);
+    updateDRODisplay() {
+        // Update DRO with current position
+        const precision = this.units === 'mm' ? 3 : 4;
+        document.getElementById('droX').value = this.position.x.toFixed(precision);
+        document.getElementById('droY').value = this.position.y.toFixed(precision);
+        document.getElementById('droZ').value = this.position.z.toFixed(precision);
+        document.getElementById('droA').value = this.position.a.toFixed(precision);
 
-            // Combined Job Size Display (in the top row)
-            document.getElementById('jobSizeDisplay').textContent = 
-                `${xSizeVal.toFixed(2)} × ${ySizeVal.toFixed(2)} × ${zDepthVal.toFixed(2)} ${unit}`;
+        // Update homed status badges
+        this.updateHomedStatus('X', this.homed.x);
+        this.updateHomedStatus('Y', this.homed.y);
+        this.updateHomedStatus('Z', this.homed.z);
+        this.updateHomedStatus('A', this.homed.a);
+    }
 
-            // Tool Changes Card
-            document.getElementById('toolChanges').textContent = this.gcodeStats.toolChanges;
-            const toolChangesListEl = document.getElementById('toolChangesList');
-            toolChangesListEl.innerHTML = ''; // Clear previous list
-
-            if (this.gcodeStats.toolChangeDetails && this.gcodeStats.toolChangeDetails.length > 0) {
-                const ul = document.createElement('ul');
-                ul.classList.add('list-unstyled', 'mb-0', 'small');
-                this.gcodeStats.toolChangeDetails.forEach(tc => {
-                    const li = document.createElement('li');
-                    li.innerHTML = `<i class="bi bi-arrow-right-short"></i> T${tc.toolNumber} (Line ${tc.line}): ${tc.description || 'No description'}`;
-                    ul.appendChild(li);
-                });
-                toolChangesListEl.appendChild(ul);
-            } else {
-                toolChangesListEl.innerHTML = '<div class="text-muted small">No tool changes</div>';
-            }
-
+    updateHomedStatus(axis, status) {
+        const badge = document.getElementById(`homed${axis}`);
+        if (status === true) {
+            badge.textContent = 'Homed';
+            badge.className = 'badge bg-success ms-2 dro-homed-badge';
+        } else if (status === 'fault') {
+            badge.textContent = 'Fault';
+            badge.className = 'badge bg-danger ms-2 dro-homed-badge';
         } else {
-            // No G-code loaded - reset displays
-            document.getElementById('jobSizeDisplay').textContent = '-- × -- × --';
-            
-            document.getElementById('toolChanges').textContent = '0';
-            document.getElementById('toolChangesList').innerHTML = '<div class="text-muted small">No tool changes</div>';
+            badge.textContent = 'Not Homed';
+            badge.className = 'badge bg-warning ms-2 dro-homed-badge';
         }
+    }
+
+    simulateDROUpdates() {
+        // Add small random fluctuations to simulate real machine behavior
+        if (this.isRunning) {
+            const fluctuation = 0.001; // 0.001mm fluctuation
+            this.position.x += (Math.random() - 0.5) * fluctuation;
+            this.position.y += (Math.random() - 0.5) * fluctuation;
+            this.position.z += (Math.random() - 0.5) * fluctuation;
+            this.updateDRODisplay();
+        }
+    }
+
+    simulateMachineRunning() {
+        if (this.isRunning) {
+            // Simulate varying machine speed and spindle speed
+            this.machineSpeed = Math.floor(Math.random() * 1000 + 500); // 500-1500 mm/min
+            this.currentSpindleSpeed = Math.floor(Math.random() * 2000 + 8000); // 8000-10000 RPM
+            this.updateSpeedDisplays();
+            
+            // Continue simulation
+            setTimeout(() => {
+                if (this.isRunning) {
+                    this.simulateMachineRunning();
+                }
+            }, 1000 + Math.random() * 2000); // Update every 1-3 seconds
+        }
+    }
+
+    updateSpeedDisplays() {
+        const units = this.units === 'mm' ? 'mm/min' : 'in/min';
+        document.getElementById('machineSpeed').textContent = `${this.machineSpeed} ${units}`;
+        document.getElementById('currentSpindleSpeed').textContent = `${this.currentSpindleSpeed} RPM`;
     }
 
     // Load dark mode preference
