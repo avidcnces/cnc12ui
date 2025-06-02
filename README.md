@@ -2,6 +2,16 @@
 
 A modern, responsive Bootstrap-based user interface for CNC machine control, designed specifically for CNC12 systems.
 
+## 🚀 Live Demo
+
+**[View Live Demo on GitHub Pages](https://avidcnces.github.io/cnc12ui/)**
+
+## 📋 Quick Start
+
+1. Clone this repository
+2. Open `index.html` in your web browser
+3. Start exploring the CNC controller interface!
+
 ## Features
 
 ### Left Panel (Control Panel)
