@@ -250,11 +250,11 @@
 
             </div>
 
-            <!-- Right Panel - G-code Preview and Stats -->
+            <!-- Right Panel - G-code Preview with Statistics -->
             <div class="col-md-8 right-panel p-3">
                 
-                <!-- G-code Preview Card -->
-                <div class="card h-75 mb-3">
+                <!-- G-code Preview Card with Statistics Tab -->
+                <div class="card h-100">
                     <div class="card-header">
                         <ul class="nav nav-tabs card-header-tabs" id="previewTabs">
                             <li class="nav-item">
@@ -265,6 +265,11 @@
                             <li class="nav-item">
                                 <button class="nav-link" id="3d-tab" data-bs-toggle="tab" data-bs-target="#3d-preview">
                                     <i class="bi bi-box me-1"></i>3D View
+                                </button>
+                            </li>
+                            <li class="nav-item">
+                                <button class="nav-link" id="stats-tab" data-bs-toggle="tab" data-bs-target="#stats-preview">
+                                    <i class="bi bi-graph-up me-1"></i>Statistics
                                 </button>
                             </li>
                         </ul>
@@ -289,38 +294,54 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- G-code Stats Card -->
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">
-                            <i class="bi bi-graph-up me-2"></i>G-code Statistics
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row text-center">
-                            <div class="col-md-4">
-                                <div class="stat-item">
-                                    <i class="bi bi-clock text-primary"></i>
-                                    <div class="stat-label">Estimated Runtime</div>
-                                    <div class="stat-value" id="estimatedRuntime">--:--:--</div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="stat-item">
-                                    <i class="bi bi-tools text-warning"></i>
-                                    <div class="stat-label">Tool Changes</div>
-                                    <div class="stat-value" id="toolChanges">0</div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="stat-item">
-                                    <i class="bi bi-rulers text-success"></i>
-                                    <div class="stat-label">Distance Cut</div>
-                                    <div class="stat-value" id="distanceCut">0.00 mm</div>
+                            <div class="tab-pane fade h-100" id="stats-preview">
+                                <div class="p-4 h-100">
+                                    <h5 class="mb-4">
+                                        <i class="bi bi-graph-up me-2"></i>G-code Statistics
+                                    </h5>
+                                    
+                                    <!-- Statistics Grid - 2x2 Layout -->
+                                    <div class="row text-center mb-3">
+                                        <div class="col-md-6 mb-3">
+                                            <div class="stat-item">
+                                                <i class="bi bi-clock text-primary display-6"></i>
+                                                <div class="stat-label">Estimated Runtime</div>
+                                                <div class="stat-value h4" id="estimatedRuntime">--:--:--</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <div class="stat-item">
+                                                <i class="bi bi-bounding-box text-info display-6"></i>
+                                                <div class="stat-label">Job Size</div>
+                                                <div class="stat-value small" id="jobSizeDisplay">-- × -- × --</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row text-center">
+                                        <div class="col-md-6">
+                                            <div class="stat-item">
+                                                <i class="bi bi-file-earmark-text text-success display-6"></i>
+                                                <div class="stat-label">File Size</div>
+                                                <div class="stat-value small" id="fileSizeDisplay">
+                                                    <div id="fileSizeKb">-- KB</div>
+                                                    <div class="text-muted" style="font-size: 0.75rem;" id="fileSizeLines">-- lines</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="card border-0 bg-light h-100" style="text-align: left;">
+                                                <div class="card-body">
+                                                    <h6 class="card-title">
+                                                        <i class="bi bi-tools me-2"></i>Tool Changes (<span id="toolChanges">0</span>)
+                                                    </h6>
+                                                    <div class="tool-changes-list" id="toolChangesList">
+                                                        <div class="text-muted small">No tool changes</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

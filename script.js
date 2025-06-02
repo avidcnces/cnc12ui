@@ -16,6 +16,25 @@ class CNCController {
         this.jogSpeed = 'slow';
         this.jogIncrement = 0.1;
         
+        // G-code statistics
+        this.gcodeStats = {
+            estimatedRuntime: 0, // in seconds
+            toolChanges: 0,
+            toolChangeDetails: [], // Added for list of tool changes
+            fileSize: {
+                bytes: 0,
+                lines: 0
+            },
+            jobSize: {
+                minX: null,
+                maxX: null,
+                minY: null,
+                maxY: null,
+                minZ: null,
+                maxZ: null
+            }
+        };
+        
         this.init();
     }
 
@@ -81,6 +100,7 @@ class CNCController {
     changeUnits(event) {
         this.units = event.target.value;
         this.updateDisplay();
+        this.updateStatisticsDisplay(); // Update statistics with new units
         console.log(`Units changed to: ${this.units}`);
     }
 
@@ -251,31 +271,77 @@ class CNCController {
         // Simulate connection status
         this.isConnected = true;
         // You could add connection status indicators here
+        
+        // Simulate some G-code statistics for demonstration
+        this.simulateGcodeStats();
     }
 
-    simulateMachineRunning() {
-        if (this.isRunning) {
-            // Simulate spindle speed and machine movement
-            this.currentSpindleSpeed = Math.floor(Math.random() * 1000) + 5000;
-            this.machineSpeed = Math.floor(Math.random() * 500) + 100;
-            this.updateSpeedDisplays();
-            
-            // Simulate position changes during running
-            setTimeout(() => {
-                if (this.isRunning) {
-                    this.position.x += (Math.random() - 0.5) * 0.1;
-                    this.position.y += (Math.random() - 0.5) * 0.1;
-                    this.updateDRODisplay();
-                    this.simulateMachineRunning();
-                }
-            }, 1000);
+    simulateGcodeStats() {
+        // Simulate G-code statistics with realistic values
+        this.gcodeStats = {
+            estimatedRuntime: 4560, // 1 hour 16 minutes in seconds
+            toolChanges: 5,
+            toolChangeDetails: [ // Added more tool change details for testing scroll
+                { toolNumber: 1, line: 89, description: "Face Mill 25mm" },
+                { toolNumber: 2, line: 245, description: "Roughing Endmill 8mm" },
+                { toolNumber: 3, line: 567, description: "Finishing Endmill 6mm" },
+                { toolNumber: 4, line: 834, description: "Ballnose 4mm R2" },
+                { toolNumber: 5, line: 1156, description: "Drill 3.2mm" }
+            ],
+            fileSize: {
+                bytes: 67840, // ~66.2 KB
+                lines: 1789
+            },
+            jobSize: {
+                minX: -42.5,
+                maxX: 87.3,
+                minY: -28.9,
+                maxY: 45.6,
+                minZ: -12.7,
+                maxZ: 2.0
+            }
+        };
+        this.updateStatisticsDisplay();
+    }
+
+    updateDisplay() {
+        this.updateDRODisplay();
+        this.updateSpeedDisplays();
+    }
+
+    updateDRODisplay() {
+        // Update DRO with current position
+        const precision = this.units === 'mm' ? 3 : 4;
+        document.getElementById('droX').value = this.position.x.toFixed(precision);
+        document.getElementById('droY').value = this.position.y.toFixed(precision);
+        document.getElementById('droZ').value = this.position.z.toFixed(precision);
+        document.getElementById('droA').value = this.position.a.toFixed(precision);
+
+        // Update homed status badges
+        this.updateHomedStatus('X', this.homed.x);
+        this.updateHomedStatus('Y', this.homed.y);
+        this.updateHomedStatus('Z', this.homed.z);
+        this.updateHomedStatus('A', this.homed.a);
+    }
+
+    updateHomedStatus(axis, status) {
+        const badge = document.getElementById(`homed${axis}`);
+        if (status === true) {
+            badge.textContent = 'Homed';
+            badge.className = 'badge bg-success ms-2 dro-homed-badge';
+        } else if (status === 'fault') {
+            badge.textContent = 'Fault';
+            badge.className = 'badge bg-danger ms-2 dro-homed-badge';
+        } else {
+            badge.textContent = 'Not Homed';
+            badge.className = 'badge bg-warning ms-2 dro-homed-badge';
         }
     }
 
     simulateDROUpdates() {
         // Add small random fluctuations to simulate real machine behavior
         if (this.isRunning) {
-            const fluctuation = 0.001;
+            const fluctuation = 0.001; // 0.001mm fluctuation
             this.position.x += (Math.random() - 0.5) * fluctuation;
             this.position.y += (Math.random() - 0.5) * fluctuation;
             this.position.z += (Math.random() - 0.5) * fluctuation;
@@ -283,50 +349,26 @@ class CNCController {
         }
     }
 
-    updateDisplay() {
-        this.updateDRODisplay();
-        this.updateSpeedDisplays();
-        this.updateStats();
-    }
-
-    updateDRODisplay() {
-        const precision = this.units === 'mm' ? 4 : 4;
-        
-        document.getElementById('droX').value = this.position.x.toFixed(precision);
-        document.getElementById('droY').value = this.position.y.toFixed(precision);
-        document.getElementById('droZ').value = this.position.z.toFixed(precision);
-        document.getElementById('droA').value = this.position.a.toFixed(precision);
-        
-        this.updateHomedBadges();
-    }
-
-    updateHomedBadges() {
-        const axes = ['x', 'y', 'z', 'a'];
-        axes.forEach(axis => {
-            const badge = document.getElementById(`homed${axis.toUpperCase()}`);
-            if (this.homed[axis] === true) {
-                badge.textContent = 'Homed';
-                badge.className = 'badge bg-success ms-2 dro-homed-badge';
-            } else if (this.homed[axis] === 'fault') {
-                badge.textContent = 'Drive Fault';
-                badge.className = 'badge bg-danger ms-2 dro-homed-badge';
-            } else {
-                badge.textContent = 'Not Homed';
-                badge.className = 'badge bg-warning ms-2 dro-homed-badge';
-            }
-        });
+    simulateMachineRunning() {
+        if (this.isRunning) {
+            // Simulate varying machine speed and spindle speed
+            this.machineSpeed = Math.floor(Math.random() * 1000 + 500); // 500-1500 mm/min
+            this.currentSpindleSpeed = Math.floor(Math.random() * 2000 + 8000); // 8000-10000 RPM
+            this.updateSpeedDisplays();
+            
+            // Continue simulation
+            setTimeout(() => {
+                if (this.isRunning) {
+                    this.simulateMachineRunning();
+                }
+            }, 1000 + Math.random() * 2000); // Update every 1-3 seconds
+        }
     }
 
     updateSpeedDisplays() {
+        const units = this.units === 'mm' ? 'mm/min' : 'in/min';
+        document.getElementById('machineSpeed').textContent = `${this.machineSpeed} ${units}`;
         document.getElementById('currentSpindleSpeed').textContent = `${this.currentSpindleSpeed} RPM`;
-        document.getElementById('machineSpeed').textContent = `${this.machineSpeed} ${this.units}/min`;
-    }
-
-    updateStats() {
-        // Simulate G-code statistics
-        document.getElementById('estimatedRuntime').textContent = '01:23:45';
-        document.getElementById('toolChanges').textContent = '3';
-        document.getElementById('distanceCut').textContent = `1,234.56 ${this.units}`;
     }
 
     // Load dark mode preference
