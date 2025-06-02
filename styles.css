@@ -23,6 +23,12 @@ body {
     background-color: var(--panel-bg-color); /* Uses shared panel background color */
     overflow-y: auto;
     max-height: calc(100vh - 56px);
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* Internet Explorer 10+ */
+}
+
+.left-panel::-webkit-scrollbar {
+    display: none; /* WebKit browsers (Chrome, Safari, Edge) */
 }
 
 .right-panel {
@@ -85,15 +91,20 @@ body {
 /* Jog Controls Styling */
 .jog-xy-container {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    padding: 0;
+    margin: 0;
 }
 
 .jog-grid {
     display: grid;
-    grid-template-columns: repeat(3, var(--jog-btn-size));
-    grid-template-rows: repeat(3, var(--jog-btn-size));
-    gap: 5px;
-    max-width: 200px;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 0.25rem;
+    justify-items: center;
+    align-items: center;
+    margin: 0 auto;
 }
 
 .jog-btn {
@@ -127,6 +138,44 @@ body {
     align-items: center;
     justify-content: center;
     border-radius: 8px;
+}
+
+/* Center jog control section labels over buttons */
+.jog-xy-container .form-label,
+.col-3 > .form-label,
+.col-6 > .form-label {
+    display: block;
+    width: 100%;
+    text-align: center;
+    margin-bottom: 0.25rem;
+}
+
+/* --- Center jog section labels above controls --- */
+.left-panel .row.mb-3 > .col-3 > .form-label,
+.left-panel .row.mb-3 > .col-6 > .form-label {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  text-align: center;
+  margin-bottom: 0.25rem;
+  font-weight: 500;
+}
+
+/* Remove extra margin/padding from jog-xy-container and jog-grid for better alignment */
+.jog-xy-container {
+  padding: 0;
+  margin: 0;
+}
+
+.jog-grid {
+  margin: 0 auto;
+}
+
+/* Ensure the Z and A axis controls are centered vertically and horizontally */
+.col-3 > .d-grid {
+  justify-items: center;
+  align-items: center;
 }
 
 /* Override Controls */
@@ -285,14 +334,4 @@ body {
 
 .status-indicator.warning {
     background-color: #ffc107;
-}
-
-/* Hide scrollbar for left panel while keeping scroll functionality */
-.left-panel {
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* Internet Explorer 10+ */
-}
-
-.left-panel::-webkit-scrollbar {
-    display: none; /* WebKit browsers (Chrome, Safari, Edge) */
 }

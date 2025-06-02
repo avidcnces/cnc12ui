@@ -16,6 +16,21 @@ class CNCController {
         this.jogSpeed = 'slow';
         this.jogIncrement = 0.1;
         
+        // G-code statistics
+        this.gcodeStats = {
+            estimatedRuntime: 0, // in seconds
+            toolChanges: 0,
+            toolChangeDetails: [], // Added for list of tool changes
+            jobSize: {
+                minX: null,
+                maxX: null,
+                minY: null,
+                maxY: null,
+                minZ: null,
+                maxZ: null
+            }
+        };
+        
         this.init();
     }
 
@@ -81,6 +96,7 @@ class CNCController {
     changeUnits(event) {
         this.units = event.target.value;
         this.updateDisplay();
+        this.updateStatisticsDisplay(); // Update statistics with new units
         console.log(`Units changed to: ${this.units}`);
     }
 
@@ -251,82 +267,80 @@ class CNCController {
         // Simulate connection status
         this.isConnected = true;
         // You could add connection status indicators here
-    }
-
-    simulateMachineRunning() {
-        if (this.isRunning) {
-            // Simulate spindle speed and machine movement
-            this.currentSpindleSpeed = Math.floor(Math.random() * 1000) + 5000;
-            this.machineSpeed = Math.floor(Math.random() * 500) + 100;
-            this.updateSpeedDisplays();
-            
-            // Simulate position changes during running
-            setTimeout(() => {
-                if (this.isRunning) {
-                    this.position.x += (Math.random() - 0.5) * 0.1;
-                    this.position.y += (Math.random() - 0.5) * 0.1;
-                    this.updateDRODisplay();
-                    this.simulateMachineRunning();
-                }
-            }, 1000);
-        }
-    }
-
-    simulateDROUpdates() {
-        // Add small random fluctuations to simulate real machine behavior
-        if (this.isRunning) {
-            const fluctuation = 0.001;
-            this.position.x += (Math.random() - 0.5) * fluctuation;
-            this.position.y += (Math.random() - 0.5) * fluctuation;
-            this.position.z += (Math.random() - 0.5) * fluctuation;
-            this.updateDRODisplay();
-        }
-    }
-
-    updateDisplay() {
-        this.updateDRODisplay();
-        this.updateSpeedDisplays();
-        this.updateStats();
-    }
-
-    updateDRODisplay() {
-        const precision = this.units === 'mm' ? 4 : 4;
         
-        document.getElementById('droX').value = this.position.x.toFixed(precision);
-        document.getElementById('droY').value = this.position.y.toFixed(precision);
-        document.getElementById('droZ').value = this.position.z.toFixed(precision);
-        document.getElementById('droA').value = this.position.a.toFixed(precision);
-        
-        this.updateHomedBadges();
+        // Simulate some G-code statistics for demonstration
+        this.simulateGcodeStats();
     }
 
-    updateHomedBadges() {
-        const axes = ['x', 'y', 'z', 'a'];
-        axes.forEach(axis => {
-            const badge = document.getElementById(`homed${axis.toUpperCase()}`);
-            if (this.homed[axis] === true) {
-                badge.textContent = 'Homed';
-                badge.className = 'badge bg-success ms-2 dro-homed-badge';
-            } else if (this.homed[axis] === 'fault') {
-                badge.textContent = 'Drive Fault';
-                badge.className = 'badge bg-danger ms-2 dro-homed-badge';
-            } else {
-                badge.textContent = 'Not Homed';
-                badge.className = 'badge bg-warning ms-2 dro-homed-badge';
+    simulateGcodeStats() {
+        // Simulate G-code statistics with realistic values
+        this.gcodeStats = {
+            estimatedRuntime: 3720, // 1 hour 2 minutes in seconds
+            toolChanges: 3,
+            toolChangeDetails: [ // Added example tool change details
+                { toolNumber: 1, line: 150, description: "Roughing Endmill 6mm" },
+                { toolNumber: 2, line: 450, description: "Finishing Ballnose 3mm" },
+                { toolNumber: 3, line: 780, description: "Drill 2mm" }
+            ],
+            jobSize: {
+                minX: -25.4,
+                maxX: 76.2,
+                minY: -12.7,
+                maxY: 50.8,
+                minZ: -6.35,
+                maxZ: 0
             }
-        });
+        };
+        this.updateStatisticsDisplay();
     }
 
-    updateSpeedDisplays() {
-        document.getElementById('currentSpindleSpeed').textContent = `${this.currentSpindleSpeed} RPM`;
-        document.getElementById('machineSpeed').textContent = `${this.machineSpeed} ${this.units}/min`;
-    }
+    updateStatisticsDisplay() {
+        // Update basic statistics
+        const hours = Math.floor(this.gcodeStats.estimatedRuntime / 3600);
+        const minutes = Math.floor((this.gcodeStats.estimatedRuntime % 3600) / 60);
+        const seconds = this.gcodeStats.estimatedRuntime % 60;
+        const runtimeText = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        
+        document.getElementById('estimatedRuntime').textContent = runtimeText;
 
-    updateStats() {
-        // Simulate G-code statistics
-        document.getElementById('estimatedRuntime').textContent = '01:23:45';
-        document.getElementById('toolChanges').textContent = '3';
-        document.getElementById('distanceCut').textContent = `1,234.56 ${this.units}`;
+        // Update job size and tool changes
+        if (this.gcodeStats.jobSize.minX !== null) {
+            const unit = this.units;
+            
+            // Calculate sizes
+            const xSizeVal = this.gcodeStats.jobSize.maxX - this.gcodeStats.jobSize.minX;
+            const ySizeVal = this.gcodeStats.jobSize.maxY - this.gcodeStats.jobSize.minY;
+            const zDepthVal = Math.abs(this.gcodeStats.jobSize.maxZ - this.gcodeStats.jobSize.minZ);
+
+            // Combined Job Size Display (in the top row)
+            document.getElementById('jobSizeDisplay').textContent = 
+                `${xSizeVal.toFixed(2)} × ${ySizeVal.toFixed(2)} × ${zDepthVal.toFixed(2)} ${unit}`;
+
+            // Tool Changes Card
+            document.getElementById('toolChanges').textContent = this.gcodeStats.toolChanges;
+            const toolChangesListEl = document.getElementById('toolChangesList');
+            toolChangesListEl.innerHTML = ''; // Clear previous list
+
+            if (this.gcodeStats.toolChangeDetails && this.gcodeStats.toolChangeDetails.length > 0) {
+                const ul = document.createElement('ul');
+                ul.classList.add('list-unstyled', 'mb-0', 'small');
+                this.gcodeStats.toolChangeDetails.forEach(tc => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<i class="bi bi-arrow-right-short"></i> T${tc.toolNumber} (Line ${tc.line}): ${tc.description || 'No description'}`;
+                    ul.appendChild(li);
+                });
+                toolChangesListEl.appendChild(ul);
+            } else {
+                toolChangesListEl.innerHTML = '<div class="text-muted small">No tool changes</div>';
+            }
+
+        } else {
+            // No G-code loaded - reset displays
+            document.getElementById('jobSizeDisplay').textContent = '-- × -- × --';
+            
+            document.getElementById('toolChanges').textContent = '0';
+            document.getElementById('toolChangesList').innerHTML = '<div class="text-muted small">No tool changes</div>';
+        }
     }
 
     // Load dark mode preference
