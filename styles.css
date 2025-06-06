@@ -297,6 +297,30 @@ body {
     border-radius: 2px;
 }
 
+/* Coolant & Vacuum Controls Styling */
+#coolantFloodBtn i {
+    color: #0d6efd;
+}
+#coolantMistBtn i {
+    color: #0dcaf0;
+}
+#coolantOffBtn i {
+    color: #6c757d;
+}
+#vacuumOnBtn i {
+    color: #198754;
+}
+#vacuumOffBtn i {
+    color: #dc3545;
+}
+#coolantFloodBtn.btn-primary,
+#coolantMistBtn.btn-info,
+#coolantOffBtn.btn-secondary,
+#vacuumOnBtn.btn-success,
+#vacuumOffBtn.btn-danger {
+    color: #fff;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .left-panel {

@@ -35,6 +35,10 @@ class CNCController {
             }
         };
         
+        // Coolant and vacuum state
+        this.coolantState = 'off'; // 'off', 'flood', 'mist'
+        this.vacuumState = false;
+
         this.init();
     }
 
@@ -79,6 +83,14 @@ class CNCController {
 
         // Home button
         document.getElementById('homeXY').addEventListener('click', this.homeXY.bind(this));
+
+        // Coolant controls
+        document.getElementById('coolantFloodBtn').addEventListener('click', this.setCoolantFlood.bind(this));
+        document.getElementById('coolantMistBtn').addEventListener('click', this.setCoolantMist.bind(this));
+        document.getElementById('coolantOffBtn').addEventListener('click', this.setCoolantOff.bind(this));
+        // Vacuum controls
+        document.getElementById('vacuumOnBtn').addEventListener('click', this.setVacuumOn.bind(this));
+        document.getElementById('vacuumOffBtn').addEventListener('click', this.setVacuumOff.bind(this));
 
         // Simulate DRO updates
         setInterval(this.simulateDROUpdates.bind(this), 100);
@@ -307,6 +319,8 @@ class CNCController {
     updateDisplay() {
         this.updateDRODisplay();
         this.updateSpeedDisplays();
+        this.updateCoolantButtons();
+        this.updateVacuumButtons();
     }
 
     updateDRODisplay() {
@@ -369,6 +383,73 @@ class CNCController {
         const units = this.units === 'mm' ? 'mm/min' : 'in/min';
         document.getElementById('machineSpeed').textContent = `${this.machineSpeed} ${units}`;
         document.getElementById('currentSpindleSpeed').textContent = `${this.currentSpindleSpeed} RPM`;
+    }
+
+    // Coolant control methods
+    setCoolantFlood() {
+        this.coolantState = 'flood';
+        this.updateCoolantButtons();
+        this.animateButton(document.getElementById('coolantFloodBtn'));
+        console.log('Coolant flood activated');
+    }
+    setCoolantMist() {
+        this.coolantState = 'mist';
+        this.updateCoolantButtons();
+        this.animateButton(document.getElementById('coolantMistBtn'));
+        console.log('Coolant mist activated');
+    }
+    setCoolantOff() {
+        this.coolantState = 'off';
+        this.updateCoolantButtons();
+        this.animateButton(document.getElementById('coolantOffBtn'));
+        console.log('Coolant turned off');
+    }
+    // Vacuum control methods
+    setVacuumOn() {
+        this.vacuumState = true;
+        this.updateVacuumButtons();
+        this.animateButton(document.getElementById('vacuumOnBtn'));
+        console.log('Vacuum turned on');
+    }
+    setVacuumOff() {
+        this.vacuumState = false;
+        this.updateVacuumButtons();
+        this.animateButton(document.getElementById('vacuumOffBtn'));
+        console.log('Vacuum turned off');
+    }
+    // Update button states for coolant controls
+    updateCoolantButtons() {
+        const floodBtn = document.getElementById('coolantFloodBtn');
+        const mistBtn = document.getElementById('coolantMistBtn');
+        const offBtn = document.getElementById('coolantOffBtn');
+        // Reset all buttons to outline style
+        floodBtn.className = 'btn btn-outline-primary w-100';
+        mistBtn.className = 'btn btn-outline-info w-100';
+        offBtn.className = 'btn btn-outline-secondary w-100';
+        // Highlight the active button
+        switch (this.coolantState) {
+            case 'flood':
+                floodBtn.className = 'btn btn-primary w-100';
+                break;
+            case 'mist':
+                mistBtn.className = 'btn btn-info w-100';
+                break;
+            case 'off':
+                offBtn.className = 'btn btn-secondary w-100';
+                break;
+        }
+    }
+    // Update button states for vacuum controls
+    updateVacuumButtons() {
+        const onBtn = document.getElementById('vacuumOnBtn');
+        const offBtn = document.getElementById('vacuumOffBtn');
+        if (this.vacuumState) {
+            onBtn.className = 'btn btn-success w-100';
+            offBtn.className = 'btn btn-outline-danger w-100';
+        } else {
+            onBtn.className = 'btn btn-outline-success w-100';
+            offBtn.className = 'btn btn-danger w-100';
+        }
     }
 
     // Load dark mode preference
