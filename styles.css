@@ -10,6 +10,79 @@
     --panel-bg-color: var(--bs-dark);
 }
 
+/* Red Theme Variables */
+[data-bs-theme="red"] {
+    --bs-primary: #dc3545;
+    --bs-primary-rgb: 220, 53, 69;
+    --bs-secondary: #6c757d;
+    --bs-secondary-rgb: 108, 117, 125;
+    --bs-success: #198754;
+    --bs-info: #0dcaf0;
+    --bs-warning: #ffc107;
+    --bs-danger: #dc3545;
+    --bs-light: #f8f9fa;
+    --bs-dark: #212529;
+    --bs-gray: #6c757d;
+    --bs-gray-dark: #343a40;
+    
+    --bs-body-color: #e9ecef;
+    --bs-body-bg: #1a1a1a;
+    --bs-emphasis-color: #ffffff;
+    --bs-secondary-color: #adb5bd;
+    --bs-secondary-bg: #2d3436;
+    --bs-tertiary-color: #6c757d;
+    --bs-tertiary-bg: #343a40;
+    
+    --bs-border-color: #495057;
+    --bs-border-color-translucent: rgba(220, 53, 69, 0.175);
+    
+    --panel-bg-color: #2d3436;
+}
+
+/* Red Theme Card Styling */
+[data-bs-theme="red"] .card {
+    background-color: #2d3436;
+    border-color: #495057;
+}
+
+[data-bs-theme="red"] .card-header {
+    background-color: #343a40;
+    border-color: #495057;
+    color: #e9ecef;
+}
+
+/* Red Theme Button Overrides */
+[data-bs-theme="red"] .btn-primary {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+[data-bs-theme="red"] .btn-outline-primary {
+    color: #dc3545;
+    border-color: #dc3545;
+}
+
+[data-bs-theme="red"] .btn-outline-primary:hover {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+/* Red Theme DRO Styling */
+[data-bs-theme="red"] .dro-input {
+    background-color: #1a1a1a;
+    color: #e9ecef;
+    border-color: #dc3545;
+}
+
+[data-bs-theme="red"] .dro-label {
+    color: #dc3545;
+}
+
+/* Red Theme Navigation */
+[data-bs-theme="red"] .navbar {
+    background-color: #dc3545 !important;
+}
+
 body {
     height: 100vh;
     overflow: hidden;

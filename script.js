@@ -49,9 +49,10 @@ class CNCController {
     }
 
     setupEventListeners() {
-        // Dark mode toggle
-        const darkModeToggle = document.getElementById('darkModeToggle');
-        darkModeToggle.addEventListener('change', this.toggleDarkMode.bind(this));
+        // Theme dropdown
+        document.querySelectorAll('[data-theme]').forEach(item => {
+            item.addEventListener('click', this.changeTheme.bind(this));
+        });
 
         // Units and WCS selectors
         document.getElementById('unitsSelect').addEventListener('change', this.changeUnits.bind(this));
@@ -96,17 +97,22 @@ class CNCController {
         setInterval(this.simulateDROUpdates.bind(this), 100);
     }
 
-    toggleDarkMode() {
-        const darkModeToggle = document.getElementById('darkModeToggle');
+    changeTheme(event) {
+        event.preventDefault();
+        const theme = event.target.dataset.theme;
         const html = document.documentElement;
         
-        if (darkModeToggle.checked) {
-            html.setAttribute('data-bs-theme', 'dark');
-            localStorage.setItem('darkMode', 'true');
-        } else {
-            html.setAttribute('data-bs-theme', 'light');
-            localStorage.setItem('darkMode', 'false');
-        }
+        html.setAttribute('data-bs-theme', theme);
+        localStorage.setItem('theme', theme);
+        
+        // Update dropdown button text
+        const dropdownButton = document.getElementById('themeDropdown');
+        const icon = event.target.querySelector('i').cloneNode(true);
+        dropdownButton.innerHTML = '';
+        dropdownButton.appendChild(icon);
+        dropdownButton.appendChild(document.createTextNode(' ' + event.target.textContent.trim()));
+        
+        console.log(`Theme changed to: ${theme}`);
     }
 
     changeUnits(event) {
@@ -453,22 +459,34 @@ class CNCController {
     }
 
     // Load dark mode preference
-    loadDarkModePreference() {
-        const darkMode = localStorage.getItem('darkMode');
-        const darkModeToggle = document.getElementById('darkModeToggle');
+    loadThemePreference() {
+        const savedTheme = localStorage.getItem('theme') || 'light';
         const html = document.documentElement;
+        const dropdownButton = document.getElementById('themeDropdown');
         
-        if (darkMode === 'true') {
-            darkModeToggle.checked = true;
-            html.setAttribute('data-bs-theme', 'dark');
-        }
+        html.setAttribute('data-bs-theme', savedTheme);
+        
+        // Update dropdown button to show current theme
+        const themeIcons = {
+            light: '<i class="bi bi-sun-fill me-1"></i>',
+            dark: '<i class="bi bi-moon-fill me-1"></i>',
+            red: '<i class="bi bi-circle-fill me-1" style="color: #dc3545;"></i>'
+        };
+        
+        const themeNames = {
+            light: 'Light',
+            dark: 'Dark', 
+            red: 'Red'
+        };
+        
+        dropdownButton.innerHTML = themeIcons[savedTheme] + themeNames[savedTheme];
     }
 }
 
 // Initialize the controller when the page loads
 document.addEventListener('DOMContentLoaded', () => {
     const controller = new CNCController();
-    controller.loadDarkModePreference();
+    controller.loadThemePreference();
     
     // Expose controller to global scope for debugging
     window.cncController = controller;

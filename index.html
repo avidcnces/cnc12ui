@@ -21,11 +21,15 @@
             </span>
             <div class="navbar-nav ms-auto">
                 <div class="nav-item">
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="darkModeToggle">
-                        <label class="form-check-label text-white" for="darkModeToggle">
-                            <i class="bi bi-moon-fill"></i>
-                        </label>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button" id="themeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-palette me-1"></i>Theme
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="themeDropdown">
+                            <li><a class="dropdown-item" href="#" data-theme="light"><i class="bi bi-sun-fill me-2"></i>Light</a></li>
+                            <li><a class="dropdown-item" href="#" data-theme="dark"><i class="bi bi-moon-fill me-2"></i>Dark</a></li>
+                            <li><a class="dropdown-item" href="#" data-theme="red"><i class="bi bi-circle-fill me-2" style="color: #dc3545;"></i>Red</a></li>
+                        </ul>
                     </div>
                 </div>
             </div>
