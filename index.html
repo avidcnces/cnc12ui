@@ -198,7 +198,7 @@
                         </h5>
                     </div>
                     <div class="card-body">
-                        <div class="row g-2">
+                        <div class="row g-2 mb-3">
                             <div class="col-6">
                                 <button class="btn btn-success w-100" id="cycleStartBtn">
                                     <i class="bi bi-play-fill"></i> Cycle Start
@@ -209,15 +209,22 @@
                                     <i class="bi bi-stop-fill"></i> Stop
                                 </button>
                             </div>
-                            <div class="col-6">
+                            <div class="col-12">
                                 <button class="btn btn-warning w-100" id="feedHoldBtn">
                                     <i class="bi bi-pause-fill"></i> Feed Hold
                                 </button>
                             </div>
-                            <div class="col-6">
-                                <button class="btn btn-secondary w-100" id="resetBtn">
-                                    <i class="bi bi-arrow-clockwise"></i> Reset
-                                </button>
+                        </div>
+                        
+                        <!-- Slide to Reset -->
+                        <div class="slide-to-reset-container">
+                            <div class="slide-to-reset-track" id="resetTrack">
+                                <div class="slide-to-reset-text">
+                                    <i class="bi bi-arrow-right me-2"></i>Slide to Reset
+                                </div>
+                                <div class="slide-to-reset-thumb" id="resetSlider">
+                                    <i class="bi bi-arrow-clockwise"></i>
+                                </div>
                             </div>
                         </div>
                     </div>

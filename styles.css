@@ -452,3 +452,92 @@ body {
 .status-indicator.warning {
     background-color: #ffc107;
 }
+
+/* Slide to Reset Button */
+.slide-to-reset-container {
+    width: 100%;
+    margin-top: 10px;
+}
+
+.slide-to-reset-track {
+    position: relative;
+    background: linear-gradient(90deg, #dc3545, #dc3545);
+    background-size: 0% 100%;
+    background-repeat: no-repeat;
+    border: 2px solid #dc3545;
+    border-radius: 50px;
+    height: 50px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: background-size 0.3s ease;
+}
+
+.slide-to-reset-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #dc3545;
+    font-weight: 600;
+    font-size: 0.9rem;
+    user-select: none;
+    pointer-events: none;
+    transition: color 0.3s ease;
+    z-index: 5;
+}
+
+.slide-to-reset-thumb {
+    position: absolute;
+    left: 4px;
+    top: 4px;
+    width: 42px;
+    height: 42px;
+    background: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #dc3545;
+    font-size: 1.2rem;
+    cursor: grab;
+    transition: transform 0.3s ease, box-shadow 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+}
+
+.slide-to-reset-thumb:active {
+    cursor: grabbing;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.slide-to-reset-track.sliding .slide-to-reset-text {
+    color: #fff;
+}
+
+.slide-to-reset-track.completed {
+    background-size: 100% 100%;
+}
+
+.slide-to-reset-track.completed .slide-to-reset-text {
+    color: #fff;
+}
+
+/* Dark mode adjustments for slide-to-reset */
+[data-bs-theme="dark"] .slide-to-reset-thumb {
+    background: #f8f9fa;
+}
+
+[data-bs-theme="red"] .slide-to-reset-thumb {
+    background: #f8f9fa;
+}
+
+/* Animation for reset completion */
+@keyframes resetPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.slide-to-reset-track.reset-complete {
+    animation: resetPulse 0.3s ease;
+}

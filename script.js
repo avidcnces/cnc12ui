@@ -46,6 +46,8 @@ class CNCController {
         this.setupEventListeners();
         this.updateDisplay();
         this.simulateConnection();
+        // Setup slide to reset after DOM is ready
+        setTimeout(() => this.setupSlideToReset(), 100);
     }
 
     setupEventListeners() {
@@ -62,7 +64,9 @@ class CNCController {
         document.getElementById('cycleStartBtn').addEventListener('click', this.cycleStart.bind(this));
         document.getElementById('stopBtn').addEventListener('click', this.stop.bind(this));
         document.getElementById('feedHoldBtn').addEventListener('click', this.feedHold.bind(this));
-        document.getElementById('resetBtn').addEventListener('click', this.reset.bind(this));
+
+        // Slide to reset functionality
+        this.setupSlideToReset();
 
         // Override controls
         document.getElementById('feedrateOverride').addEventListener('input', this.updateFeedrateOverride.bind(this));
@@ -92,7 +96,7 @@ class CNCController {
         // Vacuum controls
         document.getElementById('vacuumOnBtn').addEventListener('click', this.setVacuumOn.bind(this));
         document.getElementById('vacuumOffBtn').addEventListener('click', this.setVacuumOff.bind(this));
-
+        
         // Simulate DRO updates
         setInterval(this.simulateDROUpdates.bind(this), 100);
     }
@@ -153,6 +157,15 @@ class CNCController {
         this.machineSpeed = 0;
         this.currentSpindleSpeed = 0;
         this.position = { x: 0, y: 0, z: 0, a: 0 };
+        this.feedrateOverride = 100;
+        this.spindleOverride = 100;
+        
+        // Reset UI elements
+        document.getElementById('feedrateOverride').value = 100;
+        document.getElementById('spindleOverride').value = 100;
+        document.getElementById('feedrateValue').textContent = '100%';
+        document.getElementById('spindleValue').textContent = '100%';
+        
         this.animateButton(document.getElementById('resetBtn'));
         this.updateDisplay();
         console.log('Machine reset');
@@ -480,6 +493,143 @@ class CNCController {
         };
         
         dropdownButton.innerHTML = themeIcons[savedTheme] + themeNames[savedTheme];
+    }
+
+    setupSlideToReset() {
+        const thumb = document.getElementById('resetSlider');
+        const track = document.getElementById('resetTrack');
+        
+        if (!thumb || !track) {
+            console.log('Slide to reset elements not found');
+            return;
+        }
+        
+        console.log('Setting up slide to reset functionality');
+        
+        const thumbWidth = 42; // Fixed width from CSS
+        let maxDistance = 0;
+        
+        // Calculate max distance on resize and initially
+        const updateMaxDistance = () => {
+            maxDistance = track.offsetWidth - thumbWidth - 8; // 8px for padding (4px each side)
+            console.log('Max distance:', maxDistance);
+        };
+        
+        updateMaxDistance();
+        window.addEventListener('resize', updateMaxDistance);
+        
+        let isDragging = false;
+        let startX = 0;
+        let currentX = 0;
+
+        // Mouse events
+        thumb.addEventListener('mousedown', startDrag);
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('mouseup', endDrag);
+
+        // Touch events for mobile
+        thumb.addEventListener('touchstart', startDrag);
+        document.addEventListener('touchmove', drag);
+        document.addEventListener('touchend', endDrag);
+
+        const self = this; // Store reference to 'this'
+
+        function startDrag(e) {
+            console.log('Start drag');
+            isDragging = true;
+            startX = e.type === 'mousedown' ? e.clientX : e.touches[0].clientX;
+            track.classList.add('sliding');
+            e.preventDefault();
+        }
+
+        function drag(e) {
+            if (!isDragging) return;
+            
+            const clientX = e.type === 'mousemove' ? e.clientX : e.touches[0].clientX;
+            const deltaX = clientX - startX;
+            currentX = Math.max(0, Math.min(deltaX, maxDistance));
+            
+            thumb.style.transform = `translateX(${currentX}px)`;
+            
+            // Update background progress
+            const progress = maxDistance > 0 ? (currentX / maxDistance) * 100 : 0;
+            track.style.backgroundSize = `${progress}% 100%`;
+            
+            e.preventDefault();
+        }
+
+        function endDrag(e) {
+            if (!isDragging) return;
+            isDragging = false;
+            
+            const progress = maxDistance > 0 ? (currentX / maxDistance) * 100 : 0;
+            console.log('End drag, progress:', progress);
+            
+            if (progress >= 80) { // 80% threshold for activation
+                console.log('Reset triggered!');
+                // Complete the slide
+                thumb.style.transform = `translateX(${maxDistance}px)`;
+                track.style.backgroundSize = '100% 100%';
+                track.classList.add('completed');
+                track.classList.add('reset-complete');
+                
+                // Trigger reset after short delay
+                setTimeout(() => {
+                    self.reset(); // Use stored reference
+                    resetSlider();
+                }, 300);
+            } else {
+                // Reset to start position
+                resetSlider();
+            }
+            
+            track.classList.remove('sliding');
+        }
+
+        function resetSlider() {
+            thumb.style.transform = 'translateX(0px)';
+            track.style.backgroundSize = '0% 100%';
+            track.classList.remove('completed', 'reset-complete');
+            currentX = 0;
+        }
+    }
+
+    reset() {
+        console.log('Machine Reset triggered via slide');
+        this.isRunning = false;
+        this.machineSpeed = 0;
+        this.currentSpindleSpeed = 0;
+        this.position = { x: 0, y: 0, z: 0, a: 0 };
+        this.feedrateOverride = 100;
+        this.spindleOverride = 100;
+        
+        // Reset UI elements
+        document.getElementById('feedrateOverride').value = 100;
+        document.getElementById('spindleOverride').value = 100;
+        document.getElementById('feedrateValue').textContent = '100%';
+        document.getElementById('spindleValue').textContent = '100%';
+        
+        this.updateDisplay();
+        this.showNotification('Machine Reset Complete', 'success');
+    }
+
+    showNotification(message, type = 'info') {
+        console.log(`${type.toUpperCase()}: ${message}`);
+        
+        // Create and show notification
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type === 'success' ? 'success' : 'info'} position-fixed`;
+        notification.style.cssText = 'top: 80px; right: 20px; z-index: 9999; min-width: 250px;';
+        notification.innerHTML = `
+            <i class="bi bi-${type === 'success' ? 'check-circle' : 'info-circle'} me-2"></i>
+            ${message}
+        `;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
     }
 }
 
