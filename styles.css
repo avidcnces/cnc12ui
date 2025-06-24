@@ -584,15 +584,22 @@ body {
     font-weight: bold;
     font-size: 0.9rem;
     cursor: grab;
-    transition: all 0.3s ease;
+    transition: box-shadow 0.2s ease, transform 0.1s ease;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     user-select: none;
     z-index: 10;
 }
 
+.custom-slider-thumb:hover {
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+    transform: translateY(-1px);
+}
+
 .custom-slider-thumb:active {
     cursor: grabbing;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transform: translateY(0px);
+    transition: box-shadow 0.1s ease;
 }
 
 .custom-slider-thumb.warning {

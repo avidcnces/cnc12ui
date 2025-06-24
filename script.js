@@ -513,10 +513,11 @@ class CNCController {
 
         let isDragging = false;
         let startX = 0;
-        let currentValue = parseInt(input.value);
+        let startValue = parseInt(input.value);
+        let trackRect = null;
 
         // Initialize position and color
-        this.updateCustomSlider(type, currentValue);
+        this.updateCustomSlider(type, parseInt(input.value));
 
         // Mouse events
         thumb.addEventListener('mousedown', startDrag);
@@ -525,22 +526,33 @@ class CNCController {
         document.addEventListener('mouseup', endDrag);
 
         // Touch events
-        thumb.addEventListener('touchstart', startDrag);
-        track.addEventListener('touchstart', jumpToPosition);
-        document.addEventListener('touchmove', drag);
+        thumb.addEventListener('touchstart', startDrag, { passive: false });
+        track.addEventListener('touchstart', jumpToPosition, { passive: false });
+        document.addEventListener('touchmove', drag, { passive: false });
         document.addEventListener('touchend', endDrag);
 
         function startDrag(e) {
+            if (e.target !== thumb && !thumb.contains(e.target)) return;
+            
             isDragging = true;
             startX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+            startValue = parseInt(input.value);
+            trackRect = track.getBoundingClientRect();
+            
             e.preventDefault();
+            e.stopPropagation();
         }
 
         function jumpToPosition(e) {
-            if (e.target === thumb) return;
+            if (e.target === thumb || thumb.contains(e.target)) return;
+            
             const rect = track.getBoundingClientRect();
-            const x = (e.type.includes('touch') ? e.touches[0].clientX : e.clientX) - rect.left;
-            const percentage = Math.max(0, Math.min(1, (x - 40) / (rect.width - 80)));
+            const clickX = (e.type.includes('touch') ? e.touches[0].clientX : e.clientX) - rect.left;
+            const thumbWidth = 80;
+            const availableWidth = rect.width - thumbWidth - 8; // Account for margins
+            
+            // Calculate percentage based on click position
+            const percentage = Math.max(0, Math.min(1, (clickX - thumbWidth/2) / availableWidth));
             const newValue = Math.round(10 + percentage * 190);
             
             input.value = newValue;
@@ -548,25 +560,33 @@ class CNCController {
         }
 
         function drag(e) {
-            if (!isDragging) return;
+            if (!isDragging || !trackRect) return;
             
             const currentX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
             const deltaX = currentX - startX;
-            const rect = track.getBoundingClientRect();
-            const maxDistance = rect.width - 80;
-            const currentPosition = ((currentValue - 10) / 190) * maxDistance;
-            const newPosition = Math.max(0, Math.min(maxDistance, currentPosition + deltaX));
-            const newValue = Math.round(10 + (newPosition / maxDistance) * 190);
             
-            input.value = newValue;
-            input.dispatchEvent(new Event('input'));
+            // Calculate available width for dragging
+            const thumbWidth = 80;
+            const availableWidth = trackRect.width - thumbWidth - 8;
             
-            startX = currentX;
-            currentValue = newValue;
+            // Convert delta pixels to value change
+            const valueRange = 190; // 200 - 10
+            const deltaValue = (deltaX / availableWidth) * valueRange;
+            
+            // Calculate new value
+            const newValue = Math.round(Math.max(10, Math.min(200, startValue + deltaValue)));
+            
+            if (newValue !== parseInt(input.value)) {
+                input.value = newValue;
+                input.dispatchEvent(new Event('input'));
+            }
+            
+            e.preventDefault();
         }
 
         function endDrag() {
             isDragging = false;
+            trackRect = null;
         }
     }
 
@@ -585,14 +605,31 @@ class CNCController {
             valueSpan.textContent = `${value}%`;
         }
 
-        // Calculate position (value 10-200 maps to 0-100% of track width minus thumb width)
-        const percentage = (value - 10) / 190;
-        const trackWidth = track.offsetWidth;
+        // Calculate position more accurately
+        const trackRect = track.getBoundingClientRect();
+        const trackWidth = trackRect.width || track.offsetWidth;
         const thumbWidth = 80;
-        const maxPosition = trackWidth - thumbWidth - 8; // 8px for margins
-        const position = percentage * maxPosition;
+        const margin = 4;
+        const availableWidth = trackWidth - thumbWidth - (margin * 2);
         
-        thumb.style.left = `${4 + position}px`;
+        // Value 10-200 maps to position 0 to availableWidth
+        const percentage = (value - 10) / 190;
+        const position = margin + (percentage * availableWidth);
+        
+        // Apply position without transition during drag for smoother movement
+        const wasDragging = thumb.style.transition === 'none';
+        if (!wasDragging) {
+            thumb.style.transition = 'none';
+        }
+        
+        thumb.style.left = `${Math.round(position)}px`;
+        
+        // Restore transition after a frame
+        if (!wasDragging) {
+            requestAnimationFrame(() => {
+                thumb.style.transition = 'box-shadow 0.2s ease, transform 0.1s ease';
+            });
+        }
 
         // Update color based on distance from 100%
         const distance = Math.abs(value - 100);
