@@ -386,6 +386,16 @@ body {
 #vacuumOffBtn i {
     color: #dc3545;
 }
+
+/* Make icons white when buttons are active/selected */
+#coolantFloodBtn.btn-primary i,
+#coolantMistBtn.btn-info i,
+#coolantOffBtn.btn-secondary i,
+#vacuumOnBtn.btn-success i,
+#vacuumOffBtn.btn-danger i {
+    color: #fff !important;
+}
+
 #coolantFloodBtn.btn-primary,
 #coolantMistBtn.btn-info,
 #coolantOffBtn.btn-secondary,
