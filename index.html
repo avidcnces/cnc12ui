@@ -239,12 +239,26 @@
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
-                            <label for="feedrateOverride" class="form-label">Feed Rate Override: <span id="feedrateValue">100%</span></label>
-                            <input type="range" class="form-range" min="10" max="200" value="100" id="feedrateOverride">
+                            <label for="feedrateOverride" class="form-label">Feed Rate Override</label>
+                            <div class="custom-slider-container">
+                                <div class="custom-slider-track" id="feedrateTrack">
+                                    <div class="custom-slider-thumb" id="feedrateThumb">
+                                        <span class="slider-value">100%</span>
+                                    </div>
+                                </div>
+                                <input type="range" class="hidden-range" min="10" max="200" value="100" id="feedrateOverride">
+                            </div>
                         </div>
                         <div class="mb-3">
-                            <label for="spindleOverride" class="form-label">Spindle Override: <span id="spindleValue">100%</span></label>
-                            <input type="range" class="form-range" min="10" max="200" value="100" id="spindleOverride">
+                            <label for="spindleOverride" class="form-label">Spindle Override</label>
+                            <div class="custom-slider-container">
+                                <div class="custom-slider-track" id="spindleTrack">
+                                    <div class="custom-slider-thumb" id="spindleThumb">
+                                        <span class="slider-value">100%</span>
+                                    </div>
+                                </div>
+                                <input type="range" class="hidden-range" min="10" max="200" value="100" id="spindleOverride">
+                            </div>
                         </div>
                         <div class="row">
                             <div class="col-6">

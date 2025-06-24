@@ -68,7 +68,10 @@ class CNCController {
         // Slide to reset functionality
         this.setupSlideToReset();
 
-        // Override controls
+        // Custom override sliders
+        this.setupCustomSliders();
+
+        // Override controls (keep for compatibility)
         document.getElementById('feedrateOverride').addEventListener('input', this.updateFeedrateOverride.bind(this));
         document.getElementById('spindleOverride').addEventListener('input', this.updateSpindleOverride.bind(this));
 
@@ -173,12 +176,12 @@ class CNCController {
 
     updateFeedrateOverride(event) {
         this.feedrateOverride = event.target.value;
-        document.getElementById('feedrateValue').textContent = `${this.feedrateOverride}%`;
+        this.updateCustomSlider('feedrate', this.feedrateOverride);
     }
 
     updateSpindleOverride(event) {
         this.spindleOverride = event.target.value;
-        document.getElementById('spindleValue').textContent = `${this.spindleOverride}%`;
+        this.updateCustomSlider('spindle', this.spindleOverride);
     }
 
     changeJogMode(event) {
@@ -493,6 +496,122 @@ class CNCController {
         };
         
         dropdownButton.innerHTML = themeIcons[savedTheme] + themeNames[savedTheme];
+    }
+
+    // Setup custom pill-shaped sliders
+    setupCustomSliders() {
+        this.setupCustomSlider('feedrate', 'feedrateOverride', 'feedrateThumb', 'feedrateTrack');
+        this.setupCustomSlider('spindle', 'spindleOverride', 'spindleThumb', 'spindleTrack');
+    }
+
+    setupCustomSlider(type, inputId, thumbId, trackId) {
+        const input = document.getElementById(inputId);
+        const thumb = document.getElementById(thumbId);
+        const track = document.getElementById(trackId);
+        
+        if (!input || !thumb || !track) return;
+
+        let isDragging = false;
+        let startX = 0;
+        let currentValue = parseInt(input.value);
+
+        // Initialize position and color
+        this.updateCustomSlider(type, currentValue);
+
+        // Mouse events
+        thumb.addEventListener('mousedown', startDrag);
+        track.addEventListener('mousedown', jumpToPosition);
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('mouseup', endDrag);
+
+        // Touch events
+        thumb.addEventListener('touchstart', startDrag);
+        track.addEventListener('touchstart', jumpToPosition);
+        document.addEventListener('touchmove', drag);
+        document.addEventListener('touchend', endDrag);
+
+        function startDrag(e) {
+            isDragging = true;
+            startX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+            e.preventDefault();
+        }
+
+        function jumpToPosition(e) {
+            if (e.target === thumb) return;
+            const rect = track.getBoundingClientRect();
+            const x = (e.type.includes('touch') ? e.touches[0].clientX : e.clientX) - rect.left;
+            const percentage = Math.max(0, Math.min(1, (x - 40) / (rect.width - 80)));
+            const newValue = Math.round(10 + percentage * 190);
+            
+            input.value = newValue;
+            input.dispatchEvent(new Event('input'));
+        }
+
+        function drag(e) {
+            if (!isDragging) return;
+            
+            const currentX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+            const deltaX = currentX - startX;
+            const rect = track.getBoundingClientRect();
+            const maxDistance = rect.width - 80;
+            const currentPosition = ((currentValue - 10) / 190) * maxDistance;
+            const newPosition = Math.max(0, Math.min(maxDistance, currentPosition + deltaX));
+            const newValue = Math.round(10 + (newPosition / maxDistance) * 190);
+            
+            input.value = newValue;
+            input.dispatchEvent(new Event('input'));
+            
+            startX = currentX;
+            currentValue = newValue;
+        }
+
+        function endDrag() {
+            isDragging = false;
+        }
+    }
+
+    updateCustomSlider(type, value) {
+        const thumbId = type === 'feedrate' ? 'feedrateThumb' : 'spindleThumb';
+        const trackId = type === 'feedrate' ? 'feedrateTrack' : 'spindleTrack';
+        
+        const thumb = document.getElementById(thumbId);
+        const track = document.getElementById(trackId);
+        
+        if (!thumb || !track) return;
+
+        // Update value display
+        const valueSpan = thumb.querySelector('.slider-value');
+        if (valueSpan) {
+            valueSpan.textContent = `${value}%`;
+        }
+
+        // Calculate position (value 10-200 maps to 0-100% of track width minus thumb width)
+        const percentage = (value - 10) / 190;
+        const trackWidth = track.offsetWidth;
+        const thumbWidth = 80;
+        const maxPosition = trackWidth - thumbWidth - 8; // 8px for margins
+        const position = percentage * maxPosition;
+        
+        thumb.style.left = `${4 + position}px`;
+
+        // Update color based on distance from 100%
+        const distance = Math.abs(value - 100);
+        thumb.classList.remove('warning', 'danger');
+        
+        if (distance <= 10) {
+            // Normal - gray
+        } else if (distance <= 30) {
+            thumb.classList.add('warning');
+        } else {
+            thumb.classList.add('danger');
+        }
+
+        // Update property for backward compatibility
+        if (type === 'feedrate') {
+            this.feedrateOverride = value;
+        } else {
+            this.spindleOverride = value;
+        }
     }
 
     setupSlideToReset() {
