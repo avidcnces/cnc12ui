@@ -48,6 +48,8 @@ class CNCController {
         this.simulateConnection();
         // Setup slide to reset after DOM is ready
         setTimeout(() => this.setupSlideToReset(), 100);
+        // Initialize draggable cards with a delay to ensure SortableJS is loaded
+        setTimeout(() => this.setupDraggableCards(), 200);
     }
 
     setupEventListeners() {
@@ -371,6 +373,43 @@ class CNCController {
         } else {
             badge.textContent = 'Not Homed';
             badge.className = 'badge bg-warning ms-2 dro-homed-badge';
+        }
+    }
+
+    updateStatisticsDisplay() {
+        // Update runtime display
+        const hours = Math.floor(this.gcodeStats.estimatedRuntime / 3600);
+        const minutes = Math.floor((this.gcodeStats.estimatedRuntime % 3600) / 60);
+        const seconds = this.gcodeStats.estimatedRuntime % 60;
+        const runtimeStr = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        document.getElementById('estimatedRuntime').textContent = runtimeStr;
+
+        // Update job size display
+        if (this.gcodeStats.jobSize.minX !== null && this.gcodeStats.jobSize.maxX !== null) {
+            const xSize = (this.gcodeStats.jobSize.maxX - this.gcodeStats.jobSize.minX).toFixed(1);
+            const ySize = (this.gcodeStats.jobSize.maxY - this.gcodeStats.jobSize.minY).toFixed(1);
+            const zSize = (this.gcodeStats.jobSize.maxZ - this.gcodeStats.jobSize.minZ).toFixed(1);
+            const units = this.units;
+            document.getElementById('jobSizeDisplay').textContent = `${xSize} × ${ySize} × ${zSize} ${units}`;
+        } else {
+            document.getElementById('jobSizeDisplay').textContent = '-- × -- × --';
+        }
+
+        // Update file size display
+        const fileSizeKb = (this.gcodeStats.fileSize.bytes / 1024).toFixed(1);
+        document.getElementById('fileSizeKb').textContent = `${fileSizeKb} KB`;
+        document.getElementById('fileSizeLines').textContent = `${this.gcodeStats.fileSize.lines} lines`;
+
+        // Update tool changes display
+        document.getElementById('toolChanges').textContent = this.gcodeStats.toolChanges;
+        
+        const toolChangesList = document.getElementById('toolChangesList');
+        if (this.gcodeStats.toolChangeDetails && this.gcodeStats.toolChangeDetails.length > 0) {
+            toolChangesList.innerHTML = this.gcodeStats.toolChangeDetails
+                .map(tool => `<div class="small">T${tool.number}: ${tool.description}</div>`)
+                .join('');
+        } else {
+            toolChangesList.innerHTML = '<div class="text-muted small">No tool changes</div>';
         }
     }
 
@@ -786,6 +825,76 @@ class CNCController {
         setTimeout(() => {
             notification.remove();
         }, 3000);
+    }
+
+    // Draggable Cards functionality
+    setupDraggableCards() {
+        const sortableContainer = document.getElementById('sortable-cards');
+        
+        if (!sortableContainer) {
+            console.warn('Sortable container not found');
+            return;
+        }
+        
+        // Check if SortableJS is loaded
+        if (typeof Sortable === 'undefined') {
+            console.warn('SortableJS library not loaded');
+            return;
+        }
+        
+        console.log('Initializing SortableJS...');
+        
+        // Initialize SortableJS
+        const sortable = Sortable.create(sortableContainer, {
+            handle: '.drag-handle',
+            ghostClass: 'sortable-ghost',
+            chosenClass: 'sortable-chosen',
+            dragClass: 'sortable-drag',
+            animation: 150,
+            onEnd: (evt) => {
+                console.log('Card moved from', evt.oldIndex, 'to', evt.newIndex);
+                // Save the new order
+                this.saveCardOrder();
+            }
+        });
+        
+        console.log('SortableJS initialized successfully');
+        
+        // Load saved order on initialization
+        this.loadCardOrder();
+    }
+
+    saveCardOrder() {
+        const cards = document.querySelectorAll('#sortable-cards .card[data-card-id]');
+        const order = Array.from(cards).map(card => card.dataset.cardId);
+        localStorage.setItem('cncControllerCardOrder', JSON.stringify(order));
+    }
+
+    loadCardOrder() {
+        const savedOrder = localStorage.getItem('cncControllerCardOrder');
+        
+        if (!savedOrder) {
+            return; // No saved order, keep default
+        }
+        
+        try {
+            const order = JSON.parse(savedOrder);
+            const container = document.getElementById('sortable-cards');
+            
+            if (!container || !Array.isArray(order)) {
+                return;
+            }
+            
+            // Reorder cards based on saved order
+            order.forEach(cardId => {
+                const card = container.querySelector(`[data-card-id="${cardId}"]`);
+                if (card) {
+                    container.appendChild(card);
+                }
+            });
+        } catch (error) {
+            console.warn('Failed to load card order:', error);
+        }
     }
 }
 
