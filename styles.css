@@ -630,3 +630,54 @@ body {
     background: #495057;
     border-color: #6c757d;
 }
+
+/* Drag Handle Styles */
+.drag-handle {
+    cursor: move;
+    cursor: grab;
+    color: #6c757d;
+    font-size: 1.2rem;
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
+}
+
+.drag-handle:hover {
+    opacity: 1;
+    color: #495057;
+}
+
+.drag-handle:active {
+    cursor: grabbing;
+}
+
+/* SortableJS Styles */
+.sortable-ghost {
+    opacity: 0.4;
+}
+
+.sortable-chosen {
+    transform: rotate(2deg);
+}
+
+.sortable-drag {
+    opacity: 0.8;
+    transform: rotate(-2deg);
+}
+
+#sortable-cards .card {
+    transition: transform 0.2s ease;
+}
+
+#sortable-cards .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* Card header with drag handle */
+.card-header.d-flex {
+    user-select: none;
+}
+
+.card-header .drag-handle {
+    margin-left: auto;
+}
